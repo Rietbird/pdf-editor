@@ -1,14 +1,27 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="nl" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PDF Editor</title>
+  <title>PDF Editor — Vincent ICT</title>
   <link rel="stylesheet" href="/static/style.css" />
+  <script>
+    (function(){var t=localStorage.getItem('vict-theme');
+    if(!t)t='dark';
+    document.documentElement.setAttribute('data-theme',t);})();
+  </script>
 </head>
 <body>
   <header>
-    <h1>PDF Editor</h1>
+    <div class="header-inner">
+      <img src="https://vincent-ict.nl/wp-content/uploads/2026/03/cropped-logogradient-2.png"
+           alt="Vincent ICT" class="logo" />
+      <h1>PDF Editor</h1>
+      <button id="theme-toggle" class="btn-icon" title="Thema wisselen">
+        <span class="icon-sun">&#9788;</span>
+        <span class="icon-moon">&#9790;</span>
+      </button>
+    </div>
   </header>
 
   <div id="app">
@@ -19,24 +32,23 @@
       <button id="upload-btn" class="btn primary" disabled>Uploaden &amp; Bewerken</button>
     </section>
 
-    <div id="loading" hidden>PDF wordt omgezet, even geduld…</div>
+    <div id="loading" hidden>
+      <div class="spinner"></div>
+      PDF wordt omgezet, even geduld…
+    </div>
 
     <section id="editor-section" hidden>
       <div id="toolbar">
-        <button data-action="bold"><b>B</b></button>
-        <button data-action="italic"><i>I</i></button>
-        <button data-action="underline"><u>U</u></button>
-        <span class="separator"></span>
-        <button data-action="h1">H1</button>
-        <button data-action="h2">H2</button>
-        <span class="separator"></span>
-        <button data-action="bulletList">&#8226; Lijst</button>
-        <button data-action="orderedList">1. Lijst</button>
+        <button data-cmd="bold" title="Vet"><b>B</b></button>
+        <button data-cmd="italic" title="Cursief"><i>I</i></button>
+        <button data-cmd="underline" title="Onderstrepen"><u>U</u></button>
         <span class="separator"></span>
         <input type="color" id="color-picker" value="#000000" title="Tekstkleur" />
+        <span class="separator"></span>
+        <button id="reset-btn" class="btn" title="Alle bewerkingen ongedaan maken">Opnieuw</button>
         <button id="save-btn" class="btn primary">Download PDF</button>
       </div>
-      <div id="editor" contenteditable="true"></div>
+      <div id="editor"></div>
     </section>
   </div>
 

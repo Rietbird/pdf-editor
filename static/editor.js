@@ -8,8 +8,19 @@ const loadingDiv    = document.getElementById('loading');
 const editorSection = document.getElementById('editor-section');
 const editorDiv     = document.getElementById('editor');
 const saveBtn       = document.getElementById('save-btn');
+const resetBtn      = document.getElementById('reset-btn');
+const colorPicker   = document.getElementById('color-picker');
+const themeToggle   = document.getElementById('theme-toggle');
 
-// ── Bestand selecteren ────────────────────────────────────────────────────────
+// ── Thema wisselen ──────────────────────────────────────────────────────────
+themeToggle.addEventListener('click', () => {
+  const html = document.documentElement;
+  const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('vict-theme', next);
+});
+
+// ── Bestand selecteren ──────────────────────────────────────────────────────
 pdfInput.addEventListener('change', () => {
   const file = pdfInput.files[0];
   if (file) {
@@ -18,7 +29,7 @@ pdfInput.addEventListener('change', () => {
   }
 });
 
-// ── Upload & converteren ──────────────────────────────────────────────────────
+// ── Upload & converteren ────────────────────────────────────────────────────
 uploadBtn.addEventListener('click', async () => {
   const file = pdfInput.files[0];
   if (!file) return;
@@ -51,7 +62,27 @@ uploadBtn.addEventListener('click', async () => {
   }
 });
 
-// ── Pagina's renderen ─────────────────────────────────────────────────────────
+// ── Toolbar: Bold / Italic / Underline ──────────────────────────────────────
+document.querySelectorAll('#toolbar button[data-cmd]').forEach(btn => {
+  btn.addEventListener('mousedown', (e) => {
+    e.preventDefault(); // voorkom dat focus van het tekstveld verdwijnt
+    document.execCommand(btn.dataset.cmd, false, null);
+  });
+});
+
+// ── Toolbar: Kleur picker ───────────────────────────────────────────────────
+colorPicker.addEventListener('input', () => {
+  document.execCommand('foreColor', false, colorPicker.value);
+});
+
+// ── Opnieuw knop ────────────────────────────────────────────────────────────
+resetBtn.addEventListener('click', () => {
+  if (!pagesData) return;
+  if (!confirm('Alle bewerkingen ongedaan maken?')) return;
+  renderPages(pagesData);
+});
+
+// ── Pagina's renderen ───────────────────────────────────────────────────────
 function renderPages(pages) {
   editorDiv.innerHTML = '';
 
@@ -106,7 +137,7 @@ function renderPages(pages) {
   });
 }
 
-// ── Opslaan / PDF downloaden ──────────────────────────────────────────────────
+// ── Opslaan / PDF downloaden ────────────────────────────────────────────────
 saveBtn.addEventListener('click', async () => {
   if (!sessionId || !pagesData) return;
 

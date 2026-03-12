@@ -1,20 +1,93 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* ── Thema variabelen ─────────────────────────────────────────────────────── */
+:root[data-theme="light"] {
+  --bg: #f4f4f5;
+  --bg-surface: #ffffff;
+  --bg-surface-alt: #e4e4e7;
+  --text: #18181b;
+  --text-muted: #71717a;
+  --border: #d4d4d8;
+  --accent: #0693e3;
+  --accent-hover: #0574b8;
+  --accent-purple: #9b51e0;
+  --toolbar-bg: #ffffff;
+  --editor-bg: #e4e4e7;
+  --shadow: rgba(0,0,0,.12);
+}
+
+:root[data-theme="dark"] {
+  --bg: #0f0f14;
+  --bg-surface: #1a1a24;
+  --bg-surface-alt: #25253a;
+  --text: #e4e4e7;
+  --text-muted: #a1a1aa;
+  --border: #3f3f5a;
+  --accent: #0693e3;
+  --accent-hover: #38b6ff;
+  --accent-purple: #b77aee;
+  --toolbar-bg: #1a1a24;
+  --editor-bg: #12121a;
+  --shadow: rgba(0,0,0,.4);
+}
+
 body {
-  font-family: system-ui, sans-serif;
-  background: #f4f4f5;
-  color: #18181b;
+  font-family: system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
   min-height: 100vh;
+  transition: background .2s, color .2s;
 }
 
+/* ── Header ────────────────────────────────────────────────────────────────── */
 header {
-  background: #1e40af;
-  color: white;
-  padding: 1rem 2rem;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0.75rem 2rem;
 }
 
-header h1 { font-size: 1.25rem; font-weight: 600; }
+.header-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
 
+.logo {
+  height: 32px;
+  width: auto;
+}
+
+header h1 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, var(--accent), var(--accent-purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.btn-icon {
+  margin-left: auto;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  font-size: 1.1rem;
+  color: var(--text);
+  line-height: 1;
+}
+
+.btn-icon:hover { background: var(--bg-surface-alt); }
+
+[data-theme="dark"] .icon-sun { display: inline; }
+[data-theme="dark"] .icon-moon { display: none; }
+[data-theme="light"] .icon-sun { display: none; }
+[data-theme="light"] .icon-moon { display: inline; }
+
+/* ── Layout ────────────────────────────────────────────────────────────────── */
 #app { max-width: 960px; margin: 0 auto; padding: 2rem 1rem; }
 
 #upload-section {
@@ -25,37 +98,66 @@ header h1 { font-size: 1.25rem; font-weight: 600; }
   margin-bottom: 1.5rem;
 }
 
+#file-name { color: var(--text-muted); font-size: 0.9rem; }
+
+/* ── Buttons ───────────────────────────────────────────────────────────────── */
 .btn {
   display: inline-block;
   padding: 0.5rem 1.25rem;
-  border: 1px solid #d4d4d8;
+  border: 1px solid var(--border);
   border-radius: 6px;
-  background: white;
+  background: var(--bg-surface);
+  color: var(--text);
   cursor: pointer;
   font-size: 0.9rem;
   user-select: none;
+  transition: background .15s;
 }
 
+.btn:hover { background: var(--bg-surface-alt); }
+
 .btn.primary {
-  background: #1e40af;
+  background: linear-gradient(135deg, var(--accent), var(--accent-purple));
   color: white;
-  border-color: #1e40af;
+  border-color: transparent;
+}
+
+.btn.primary:hover {
+  filter: brightness(1.1);
 }
 
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
+/* ── Loading ───────────────────────────────────────────────────────────────── */
 #loading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   padding: 1rem;
-  background: #fef9c3;
-  border: 1px solid #fde047;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
   border-radius: 6px;
   margin-bottom: 1rem;
+  color: var(--text);
 }
 
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .6s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Editor section ────────────────────────────────────────────────────────── */
 #editor-section {
-  background: #e4e4e7;
+  background: var(--editor-bg);
   border-radius: 8px;
-  box-shadow: 0 1px 4px rgba(0,0,0,.1);
+  box-shadow: 0 1px 4px var(--shadow);
+  border: 1px solid var(--border);
 }
 
 #toolbar {
@@ -63,41 +165,46 @@ header h1 { font-size: 1.25rem; font-weight: 600; }
   align-items: center;
   gap: 0.4rem;
   padding: 0.6rem 1rem;
-  border-bottom: 1px solid #d4d4d8;
+  border-bottom: 1px solid var(--border);
   flex-wrap: wrap;
-  background: white;
+  background: var(--toolbar-bg);
   border-radius: 8px 8px 0 0;
 }
 
 #toolbar button {
   padding: 0.3rem 0.7rem;
-  border: 1px solid #d4d4d8;
+  border: 1px solid var(--border);
   border-radius: 4px;
-  background: white;
+  background: var(--bg-surface);
+  color: var(--text);
   cursor: pointer;
   font-size: 0.85rem;
+  transition: background .15s;
 }
 
-#toolbar button:hover { background: #f4f4f5; }
+#toolbar button:hover { background: var(--bg-surface-alt); }
 
 #toolbar .separator {
   width: 1px;
   height: 20px;
-  background: #e4e4e7;
+  background: var(--border);
   margin: 0 0.2rem;
 }
 
+#toolbar #reset-btn { margin-left: auto; }
+
 #toolbar #save-btn {
-  margin-left: auto;
-  background: #1e40af;
+  background: linear-gradient(135deg, var(--accent), var(--accent-purple));
   color: white;
-  border-color: #1e40af;
+  border-color: transparent;
 }
+
+#toolbar #save-btn:hover { filter: brightness(1.1); }
 
 #toolbar #color-picker {
   width: 32px;
   height: 28px;
-  border: 1px solid #d4d4d8;
+  border: 1px solid var(--border);
   border-radius: 4px;
   padding: 2px;
   cursor: pointer;
@@ -109,16 +216,16 @@ header h1 { font-size: 1.25rem; font-weight: 600; }
   max-height: 80vh;
 }
 
-/* Pagina container met achtergrondafbeelding */
+/* ── PDF pagina ────────────────────────────────────────────────────────────── */
 .pdf-page {
   position: relative;
   margin: 0 auto 2rem auto;
   background-color: white;
   background-repeat: no-repeat;
-  box-shadow: 0 2px 8px rgba(0,0,0,.2);
+  box-shadow: 0 2px 8px var(--shadow);
 }
 
-/* Bewerkbare tekst blokken bovenop de afbeelding (achtergrond is tekstloos) */
+/* ── Bewerkbare tekst blokken ──────────────────────────────────────────────── */
 .text-block {
   position: absolute;
   display: block;
@@ -130,17 +237,21 @@ header h1 { font-size: 1.25rem; font-weight: 600; }
   padding: 0;
   margin: 0;
   white-space: pre;
+  overflow: hidden;
 }
 
-/* Bij hover: lichte highlight */
 .text-block:hover {
-  background: rgba(30, 64, 175, 0.08);
+  background: rgba(6, 147, 227, 0.08);
 }
 
-/* Bij focus (bewerken) */
 .text-block:focus {
-  background: rgba(254, 249, 195, 0.85);
-  outline: 2px solid #1e40af;
+  background: rgba(254, 249, 195, 0.9);
+  outline: 2px solid var(--accent);
   outline-offset: 1px;
   z-index: 10;
+  overflow: visible;
+}
+
+.text-block.modified {
+  background: white;
 }
