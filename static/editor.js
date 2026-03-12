@@ -12,6 +12,10 @@ const resetBtn      = document.getElementById('reset-btn');
 const colorPicker   = document.getElementById('color-picker');
 const themeToggle   = document.getElementById('theme-toggle');
 
+// ── Helper: show/hide loading ────────────────────────────────────────────────
+function showLoading() { loadingDiv.classList.add('visible'); }
+function hideLoading() { loadingDiv.classList.remove('visible'); }
+
 // ── Thema wisselen ──────────────────────────────────────────────────────────
 themeToggle.addEventListener('click', () => {
   const html = document.documentElement;
@@ -35,7 +39,7 @@ uploadBtn.addEventListener('click', async () => {
   if (!file) return;
 
   uploadBtn.disabled = true;
-  loadingDiv.hidden = false;
+  showLoading();
   editorSection.hidden = true;
 
   try {
@@ -58,14 +62,14 @@ uploadBtn.addEventListener('click', async () => {
     alert('Fout: ' + e.message);
     uploadBtn.disabled = false;
   } finally {
-    loadingDiv.hidden = true;
+    hideLoading();
   }
 });
 
 // ── Toolbar: Bold / Italic / Underline ──────────────────────────────────────
 document.querySelectorAll('#toolbar button[data-cmd]').forEach(btn => {
   btn.addEventListener('mousedown', (e) => {
-    e.preventDefault(); // voorkom dat focus van het tekstveld verdwijnt
+    e.preventDefault();
     document.execCommand(btn.dataset.cmd, false, null);
   });
 });
@@ -81,6 +85,27 @@ resetBtn.addEventListener('click', () => {
   if (!confirm('Alle bewerkingen ongedaan maken?')) return;
   renderPages(pagesData);
 });
+
+// ── PDF font name → CSS font-family mapping ────────────────────────────────
+function mapPdfFont(pdfFont) {
+  if (!pdfFont) return 'system-ui, sans-serif';
+  const f = pdfFont.toLowerCase();
+  // Verwijder subset prefix (bijv. "BCDFGH+Calibri" → "Calibri")
+  const clean = pdfFont.replace(/^[A-Z]{6}\+/, '');
+  // Map veelvoorkomende PDF fonts
+  if (f.includes('calibri')) return 'Calibri, system-ui, sans-serif';
+  if (f.includes('arial'))   return 'Arial, Helvetica, sans-serif';
+  if (f.includes('times'))   return '"Times New Roman", Times, serif';
+  if (f.includes('courier')) return '"Courier New", Courier, monospace';
+  if (f.includes('verdana')) return 'Verdana, Geneva, sans-serif';
+  if (f.includes('tahoma'))  return 'Tahoma, Geneva, sans-serif';
+  if (f.includes('georgia')) return 'Georgia, serif';
+  if (f.includes('trebuchet')) return '"Trebuchet MS", sans-serif';
+  if (f.includes('comic'))   return '"Comic Sans MS", cursive';
+  if (f.includes('impact'))  return 'Impact, sans-serif';
+  // Gebruik de naam direct als fallback
+  return `"${clean}", system-ui, sans-serif`;
+}
 
 // ── Pagina's renderen ───────────────────────────────────────────────────────
 function renderPages(pages) {
@@ -104,11 +129,12 @@ function renderPages(pages) {
       span.textContent = block.text;
       span.dataset.blockIdx = blockIdx;
 
-      // Positie en afmetingen op basis van bbox
+      // Positie op basis van bbox
       span.style.left = block.bbox[0] + 'pt';
       span.style.top = block.bbox[1] + 'pt';
       span.style.fontSize = block.size + 'pt';
       span.style.color = block.color;
+      span.style.fontFamily = mapPdfFont(block.font);
 
       // Font weight/style op basis van flags
       if (block.flags & 16) span.style.fontWeight = 'bold';

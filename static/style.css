@@ -132,7 +132,6 @@ header h1 {
 
 /* ── Loading ───────────────────────────────────────────────────────────────── */
 #loading {
-  display: flex;
   align-items: center;
   gap: 0.75rem;
   padding: 1rem;
@@ -142,6 +141,10 @@ header h1 {
   margin-bottom: 1rem;
   color: var(--text);
 }
+
+/* Fix: hidden attribuut wordt niet overschreven door display */
+#loading { display: none; }
+#loading.visible { display: flex; }
 
 .spinner {
   width: 20px;
@@ -240,20 +243,29 @@ header h1 {
   margin: 0;
   white-space: pre;
   overflow: hidden;
+  color: transparent !important;
+  caret-color: black;
 }
 
 .text-block:hover {
-  background: rgba(6, 147, 227, 0.08);
+  background: rgba(6, 147, 227, 0.1);
 }
 
+/* Bij focus: tekst zichtbaar met witte achtergrond die het origineel afdekt */
 .text-block:focus {
-  background: rgba(254, 249, 195, 0.9);
+  color: inherit !important;
+  background: rgba(254, 249, 195, 0.95);
+  box-shadow: 0 0 0 3px rgba(254, 249, 195, 0.95);
   outline: 2px solid var(--accent);
-  outline-offset: 1px;
+  outline-offset: 2px;
   z-index: 10;
   overflow: visible;
 }
 
+/* Bewerkt blok: tekst zichtbaar met witte achtergrond + extra dekking */
 .text-block.modified {
+  color: inherit !important;
   background: white;
+  box-shadow: 0 0 0 3px white;
+  z-index: 5;
 }
