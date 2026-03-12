@@ -242,21 +242,17 @@ header h1 {
   margin: 0;
   white-space: pre;
   overflow: hidden;
-  color: transparent !important;
-  caret-color: black;
 }
 
 .text-block:hover {
-  background: rgba(6, 147, 227, 0.1);
+  background: rgba(6, 147, 227, 0.08);
 }
 
 /* Bij focus: tekstvak groeit mee met de inhoud */
 .text-block:focus {
-  color: inherit !important;
-  background: rgba(254, 249, 195, 0.95);
-  box-shadow: 0 0 0 3px rgba(254, 249, 195, 0.95);
+  background: rgba(254, 249, 195, 0.9);
   outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  outline-offset: 1px;
   z-index: 10;
   overflow: visible;
   width: auto !important;
@@ -265,12 +261,8 @@ header h1 {
   min-height: 1em;
 }
 
-/* Bewerkt blok: tekst zichtbaar, tekstvak groeit mee */
+/* Bewerkt blok: tekstvak groeit mee */
 .text-block.modified {
-  color: inherit !important;
-  background: white;
-  box-shadow: 0 0 0 3px white;
-  z-index: 5;
   overflow: visible;
   width: auto !important;
   height: auto !important;

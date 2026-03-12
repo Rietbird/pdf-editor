@@ -60,15 +60,27 @@ async def upload_pdf(file: UploadFile = File(...)):
             "blocks": blocks,
         })
 
-    # Render achtergrondafbeeldingen (met tekst - overlay is transparant)
-    # JPEG is ~5x kleiner dan PNG, 120 DPI is voldoende voor schermweergave
+    # Render achtergrondafbeeldingen ZONDER tekst
+    # Tekst wordt via redaction verwijderd zodat alleen de overlay zichtbaar is
+    tmp_doc = fitz.open(stream=pdf_bytes, filetype="pdf")
     for page_idx, page_data in enumerate(pages):
-        page = doc[page_idx]
+        tmp_page = tmp_doc[page_idx]
+        text_dict = tmp_page.get_text("dict")
+        for block in text_dict["blocks"]:
+            if block["type"] != 0:
+                continue
+            for line in block["lines"]:
+                for span in line["spans"]:
+                    if span["text"].strip():
+                        tmp_page.add_redact_annot(fitz.Rect(span["bbox"]))
+        tmp_page.apply_redactions(images=fitz.PDF_REDACT_IMAGE_NONE)
+
         mat = fitz.Matrix(120 / 72, 120 / 72)
-        pix = page.get_pixmap(matrix=mat)
+        pix = tmp_page.get_pixmap(matrix=mat)
         img_bytes = pix.tobytes("jpeg")
         page_data["image"] = base64.b64encode(img_bytes).decode("ascii")
 
+    tmp_doc.close()
     doc.close()
 
     session_id = str(uuid.uuid4())
