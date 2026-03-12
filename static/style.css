@@ -56,7 +56,9 @@ header {
 
 .logo {
   height: 32px;
+  max-height: 32px;
   width: auto;
+  object-fit: contain;
 }
 
 header h1 {
