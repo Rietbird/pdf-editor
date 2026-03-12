@@ -78,7 +78,11 @@ document.querySelectorAll('#toolbar button[data-cmd]').forEach(btn => {
 
 // ── Toolbar: Kleur picker ───────────────────────────────────────────────────
 colorPicker.addEventListener('input', () => {
-  document.execCommand('foreColor', false, colorPicker.value);
+  const focused = document.querySelector('.text-block:focus');
+  if (focused) {
+    focused.style.color = colorPicker.value;
+    focused.classList.add('modified');
+  }
 });
 
 // ── Opnieuw knop ────────────────────────────────────────────────────────────
@@ -192,7 +196,7 @@ saveBtn.addEventListener('click', async () => {
       const blocks = [];
       const spans = pageDiv.querySelectorAll('.text-block');
       spans.forEach((span) => {
-        blocks.push({ text: span.textContent });
+        blocks.push({ text: span.textContent, color: span.style.color });
       });
       editedPages.push({ blocks });
     });

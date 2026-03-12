@@ -11,6 +11,27 @@ from fastapi.staticfiles import StaticFiles
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+import re
+
+
+def _parse_color(color_str: str) -> str:
+    """Converteer CSS kleur (hex of rgb()) naar 6-digit hex string zonder #."""
+    if not color_str:
+        return "000000"
+    color_str = color_str.strip()
+    # rgb(r, g, b) formaat
+    m = re.match(r"rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)", color_str)
+    if m:
+        return f"{int(m.group(1)):02x}{int(m.group(2)):02x}{int(m.group(3)):02x}"
+    # hex formaat
+    h = color_str.lstrip("#")
+    if len(h) == 3:
+        h = h[0]*2 + h[1]*2 + h[2]*2
+    if len(h) == 6:
+        return h
+    return "000000"
+
+
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -121,27 +142,32 @@ async def save_pdf(session_id: str, request: Request):
             orig = original_blocks[i]
             new_text = edited_block.get("text", "")
 
-            if new_text != orig["text"]:
+            # Bepaal de kleur (gebruik nieuwe kleur als die is meegegeven)
+            new_color = edited_block.get("color", orig["color"])
+            color_changed = new_color != orig["color"]
+
+            if new_text != orig["text"] or color_changed:
                 # Redact (verwijder) de oude tekst
                 bbox = fitz.Rect(orig["bbox"])
                 page.add_redact_annot(bbox, fill=(1, 1, 1))
                 page.apply_redactions()
 
-                # Voeg de nieuwe tekst in op dezelfde positie
-                fontsize = orig["size"]
-                color_hex = orig["color"].lstrip("#")
+                # Converteer kleur naar RGB floats
+                color_hex = _parse_color(new_color)
                 r, g, b = (
                     int(color_hex[0:2], 16) / 255,
                     int(color_hex[2:4], 16) / 255,
                     int(color_hex[4:6], 16) / 255,
                 )
 
-                page.insert_text(
-                    fitz.Point(orig["x"], orig["y"]),
-                    new_text,
-                    fontsize=fontsize,
-                    color=(r, g, b),
-                )
+                # Voeg de nieuwe tekst in op dezelfde positie
+                if new_text.strip():
+                    page.insert_text(
+                        fitz.Point(orig["x"], orig["y"]),
+                        new_text,
+                        fontsize=orig["size"],
+                        color=(r, g, b),
+                    )
 
     pdf_output = doc.tobytes()
     doc.close()
