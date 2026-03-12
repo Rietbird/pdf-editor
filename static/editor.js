@@ -1,0 +1,151 @@
+let sessionId = null;
+let pagesData = null;
+
+const pdfInput      = document.getElementById('pdf-input');
+const fileNameSpan  = document.getElementById('file-name');
+const uploadBtn     = document.getElementById('upload-btn');
+const loadingDiv    = document.getElementById('loading');
+const editorSection = document.getElementById('editor-section');
+const editorDiv     = document.getElementById('editor');
+const saveBtn       = document.getElementById('save-btn');
+
+// ── Bestand selecteren ────────────────────────────────────────────────────────
+pdfInput.addEventListener('change', () => {
+  const file = pdfInput.files[0];
+  if (file) {
+    fileNameSpan.textContent = file.name;
+    uploadBtn.disabled = false;
+  }
+});
+
+// ── Upload & converteren ──────────────────────────────────────────────────────
+uploadBtn.addEventListener('click', async () => {
+  const file = pdfInput.files[0];
+  if (!file) return;
+
+  uploadBtn.disabled = true;
+  loadingDiv.hidden = false;
+  editorSection.hidden = true;
+
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const res = await fetch('/upload', { method: 'POST', body: formData });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail || 'Upload mislukt');
+    }
+
+    const data = await res.json();
+    sessionId = data.session_id;
+    pagesData = data.pages;
+
+    renderPages(data.pages);
+    editorSection.hidden = false;
+  } catch (e) {
+    alert('Fout: ' + e.message);
+    uploadBtn.disabled = false;
+  } finally {
+    loadingDiv.hidden = true;
+  }
+});
+
+// ── Pagina's renderen ─────────────────────────────────────────────────────────
+function renderPages(pages) {
+  editorDiv.innerHTML = '';
+
+  pages.forEach((page, pageIdx) => {
+    const pageDiv = document.createElement('div');
+    pageDiv.className = 'pdf-page';
+    pageDiv.style.width = page.width + 'pt';
+    pageDiv.style.height = page.height + 'pt';
+    pageDiv.style.backgroundImage = `url(data:image/png;base64,${page.image})`;
+    pageDiv.style.backgroundSize = '100% 100%';
+    pageDiv.dataset.pageIdx = pageIdx;
+
+    // Tekst blokken als bewerkbare overlays
+    page.blocks.forEach((block, blockIdx) => {
+      const span = document.createElement('span');
+      span.className = 'text-block';
+      span.contentEditable = 'true';
+      span.spellcheck = false;
+      span.textContent = block.text;
+      span.dataset.blockIdx = blockIdx;
+
+      // Positie en afmetingen op basis van bbox
+      span.style.left = block.bbox[0] + 'pt';
+      span.style.top = block.bbox[1] + 'pt';
+      span.style.fontSize = block.size + 'pt';
+      span.style.color = block.color;
+
+      // Font weight/style op basis van flags
+      if (block.flags & 16) span.style.fontWeight = 'bold';
+      if (block.flags & 2) span.style.fontStyle = 'italic';
+
+      // Afmetingen op basis van bbox
+      const blockWidth = block.bbox[2] - block.bbox[0];
+      const blockHeight = block.bbox[3] - block.bbox[1];
+      span.style.width = blockWidth + 'pt';
+      span.style.height = blockHeight + 'pt';
+
+      // Originele tekst onthouden om wijzigingen te detecteren
+      span.dataset.originalText = block.text;
+      span.addEventListener('input', () => {
+        if (span.textContent !== span.dataset.originalText) {
+          span.classList.add('modified');
+        } else {
+          span.classList.remove('modified');
+        }
+      });
+
+      pageDiv.appendChild(span);
+    });
+
+    editorDiv.appendChild(pageDiv);
+  });
+}
+
+// ── Opslaan / PDF downloaden ──────────────────────────────────────────────────
+saveBtn.addEventListener('click', async () => {
+  if (!sessionId || !pagesData) return;
+
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Bezig…';
+
+  try {
+    // Verzamel bewerkte tekst per pagina en blok
+    const editedPages = [];
+    const pageDivs = editorDiv.querySelectorAll('.pdf-page');
+
+    pageDivs.forEach((pageDiv) => {
+      const blocks = [];
+      const spans = pageDiv.querySelectorAll('.text-block');
+      spans.forEach((span) => {
+        blocks.push({ text: span.textContent });
+      });
+      editedPages.push({ blocks });
+    });
+
+    const res = await fetch(`/save/${sessionId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pages: editedPages }),
+    });
+
+    if (!res.ok) throw new Error('Opslaan mislukt');
+
+    const blob = await res.blob();
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = 'bewerkt.pdf';
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch (e) {
+    alert('Fout: ' + e.message);
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Download PDF';
+  }
+});

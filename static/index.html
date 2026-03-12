@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PDF Editor</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header>
+    <h1>PDF Editor</h1>
+  </header>
+
+  <div id="app">
+    <section id="upload-section">
+      <label for="pdf-input" class="btn">Kies PDF</label>
+      <input type="file" id="pdf-input" accept=".pdf" hidden />
+      <span id="file-name">Geen bestand gekozen</span>
+      <button id="upload-btn" class="btn primary" disabled>Uploaden &amp; Bewerken</button>
+    </section>
+
+    <div id="loading" hidden>PDF wordt omgezet, even geduld…</div>
+
+    <section id="editor-section" hidden>
+      <div id="toolbar">
+        <button data-action="bold"><b>B</b></button>
+        <button data-action="italic"><i>I</i></button>
+        <button data-action="underline"><u>U</u></button>
+        <span class="separator"></span>
+        <button data-action="h1">H1</button>
+        <button data-action="h2">H2</button>
+        <span class="separator"></span>
+        <button data-action="bulletList">&#8226; Lijst</button>
+        <button data-action="orderedList">1. Lijst</button>
+        <span class="separator"></span>
+        <input type="color" id="color-picker" value="#000000" title="Tekstkleur" />
+        <button id="save-btn" class="btn primary">Download PDF</button>
+      </div>
+      <div id="editor" contenteditable="true"></div>
+    </section>
+  </div>
+
+  <script src="/static/editor.js"></script>
+</body>
+</html>

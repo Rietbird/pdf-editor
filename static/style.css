@@ -1,0 +1,146 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: system-ui, sans-serif;
+  background: #f4f4f5;
+  color: #18181b;
+  min-height: 100vh;
+}
+
+header {
+  background: #1e40af;
+  color: white;
+  padding: 1rem 2rem;
+}
+
+header h1 { font-size: 1.25rem; font-weight: 600; }
+
+#app { max-width: 960px; margin: 0 auto; padding: 2rem 1rem; }
+
+#upload-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.btn {
+  display: inline-block;
+  padding: 0.5rem 1.25rem;
+  border: 1px solid #d4d4d8;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  font-size: 0.9rem;
+  user-select: none;
+}
+
+.btn.primary {
+  background: #1e40af;
+  color: white;
+  border-color: #1e40af;
+}
+
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+#loading {
+  padding: 1rem;
+  background: #fef9c3;
+  border: 1px solid #fde047;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+#editor-section {
+  background: #e4e4e7;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.1);
+}
+
+#toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid #d4d4d8;
+  flex-wrap: wrap;
+  background: white;
+  border-radius: 8px 8px 0 0;
+}
+
+#toolbar button {
+  padding: 0.3rem 0.7rem;
+  border: 1px solid #d4d4d8;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+#toolbar button:hover { background: #f4f4f5; }
+
+#toolbar .separator {
+  width: 1px;
+  height: 20px;
+  background: #e4e4e7;
+  margin: 0 0.2rem;
+}
+
+#toolbar #save-btn {
+  margin-left: auto;
+  background: #1e40af;
+  color: white;
+  border-color: #1e40af;
+}
+
+#toolbar #color-picker {
+  width: 32px;
+  height: 28px;
+  border: 1px solid #d4d4d8;
+  border-radius: 4px;
+  padding: 2px;
+  cursor: pointer;
+}
+
+#editor {
+  padding: 2rem;
+  overflow-y: auto;
+  max-height: 80vh;
+}
+
+/* Pagina container met achtergrondafbeelding */
+.pdf-page {
+  position: relative;
+  margin: 0 auto 2rem auto;
+  background-color: white;
+  background-repeat: no-repeat;
+  box-shadow: 0 2px 8px rgba(0,0,0,.2);
+}
+
+/* Bewerkbare tekst blokken bovenop de afbeelding (achtergrond is tekstloos) */
+.text-block {
+  position: absolute;
+  display: block;
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: text;
+  line-height: 1.15;
+  padding: 0;
+  margin: 0;
+  white-space: pre;
+}
+
+/* Bij hover: lichte highlight */
+.text-block:hover {
+  background: rgba(30, 64, 175, 0.08);
+}
+
+/* Bij focus (bewerken) */
+.text-block:focus {
+  background: rgba(254, 249, 195, 0.85);
+  outline: 2px solid #1e40af;
+  outline-offset: 1px;
+  z-index: 10;
+}
