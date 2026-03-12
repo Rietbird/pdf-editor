@@ -242,7 +242,7 @@ header h1 {
   margin: 0;
   white-space: pre;
   overflow: hidden;
-  color: transparent !important;
+  -webkit-text-fill-color: transparent;
   caret-color: black;
 }
 
@@ -250,9 +250,9 @@ header h1 {
   background: rgba(6, 147, 227, 0.08);
 }
 
-/* Bij focus: witte achtergrond dekt originele tekst af, overlay tekst zichtbaar */
+/* Bij focus: witte achtergrond dekt originele tekst af, originele kleur zichtbaar */
 .text-block:focus {
-  color: inherit !important;
+  -webkit-text-fill-color: initial;
   background: white;
   box-shadow: 0 0 0 2px white;
   outline: 2px solid var(--accent);
@@ -261,10 +261,9 @@ header h1 {
   overflow: visible;
 }
 
-/* Bewerkt blok: witte achtergrond blijft, tekst zichtbaar */
-/* Behoudt originele afmetingen via min-width/min-height (gezet in JS) */
+/* Bewerkt blok: witte achtergrond blijft, originele kleur zichtbaar */
 .text-block.modified {
-  color: inherit !important;
+  -webkit-text-fill-color: initial;
   background: white;
   box-shadow: 0 0 0 2px white;
   z-index: 5;
