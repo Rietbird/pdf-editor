@@ -90,14 +90,15 @@ header h1 {
 [data-theme="light"] .icon-moon { display: inline; }
 
 /* ── Layout ────────────────────────────────────────────────────────────────── */
-#app { max-width: 960px; margin: 0 auto; padding: 2rem 1rem; }
+#app { max-width: 960px; margin: 0 auto; padding: 1.5rem 1rem 0.5rem; }
 
 #upload-section {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 1rem;
   flex-wrap: wrap;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.75rem;
 }
 
 #file-name { color: var(--text-muted); font-size: 0.9rem; }
@@ -281,7 +282,7 @@ header h1 {
 footer {
   max-width: 960px;
   margin: 0 auto;
-  padding: 1.5rem 1rem;
+  padding: 0.75rem 1rem;
 }
 
 .disclaimer {
