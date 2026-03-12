@@ -10,7 +10,7 @@ from fastapi.staticfiles import StaticFiles
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# In-memory session store
+# In-memory session store — sessies worden verwijderd na opslaan
 sessions: dict[str, dict] = {}
 
 
@@ -132,6 +132,9 @@ async def save_pdf(session_id: str, request: Request):
 
     pdf_output = doc.tobytes()
     doc.close()
+
+    # Sessie opruimen — PDF data wordt direct uit geheugen verwijderd
+    del sessions[session_id]
 
     return Response(
         content=pdf_output,
