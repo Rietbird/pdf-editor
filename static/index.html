@@ -14,7 +14,9 @@
 <body>
   <header>
     <div class="header-inner">
-      <img src="/static/logo.png" alt="Vincent ICT" class="logo" />
+      <a href="https://vincent-ict.nl" target="_blank" rel="noopener" class="logo-link">
+        <img src="/static/logo.png" alt="Vincent ICT" class="logo" />
+      </a>
       <h1>PDF Editor</h1>
       <button id="theme-toggle" class="btn-icon" title="Thema wisselen">
         <span class="icon-sun">&#9788;</span>
@@ -50,6 +52,10 @@
       <div id="editor"></div>
     </section>
   </div>
+
+  <footer>
+    <p class="disclaimer">Je PDF wordt tijdelijk op de server verwerkt en na de sessie automatisch verwijderd. Er worden geen bestanden opgeslagen. Gebruik deze tool niet voor vertrouwelijke of gevoelige documenten.</p>
+  </footer>
 
   <script src="/static/editor.js"></script>
 </body>

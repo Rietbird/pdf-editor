@@ -1,0 +1,5 @@
+- [ ] logo laten klikken naar website
+- [ ] kan het misschien als subpagina op de website -> wordpress?
+- [ ] De progress spinner draait al wanneer je de pagina opent met de tekst "pdf wordt omgezet, even geduld..." terwijl er nog niks gedaan is. 
+- [ ] Laat de code nog checken op optimalisatie met name de laadtijd van de pdf
+- [ ] voeg een disclaimer toe over veiligheid

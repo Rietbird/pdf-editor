@@ -269,3 +269,24 @@ header h1 {
   box-shadow: 0 0 0 3px white;
   z-index: 5;
 }
+
+/* ── Logo link ─────────────────────────────────────────────────────────────── */
+.logo-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+/* ── Footer / disclaimer ──────────────────────────────────────────────────── */
+footer {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+}
+
+.disclaimer {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.5;
+}

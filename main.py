@@ -61,12 +61,13 @@ async def upload_pdf(file: UploadFile = File(...)):
         })
 
     # Render achtergrondafbeeldingen (met tekst - overlay is transparant)
+    # JPEG is ~5x kleiner dan PNG, 120 DPI is voldoende voor schermweergave
     for page_idx, page_data in enumerate(pages):
         page = doc[page_idx]
-        mat = fitz.Matrix(150 / 72, 150 / 72)
+        mat = fitz.Matrix(120 / 72, 120 / 72)
         pix = page.get_pixmap(matrix=mat)
-        img_bytes_png = pix.tobytes("png")
-        page_data["image"] = base64.b64encode(img_bytes_png).decode("ascii")
+        img_bytes = pix.tobytes("jpeg")
+        page_data["image"] = base64.b64encode(img_bytes).decode("ascii")
 
     doc.close()
 

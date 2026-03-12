@@ -116,7 +116,7 @@ function renderPages(pages) {
     pageDiv.className = 'pdf-page';
     pageDiv.style.width = page.width + 'pt';
     pageDiv.style.height = page.height + 'pt';
-    pageDiv.style.backgroundImage = `url(data:image/png;base64,${page.image})`;
+    pageDiv.style.backgroundImage = `url(data:image/jpeg;base64,${page.image})`;
     pageDiv.style.backgroundSize = '100% 100%';
     pageDiv.dataset.pageIdx = pageIdx;
 
