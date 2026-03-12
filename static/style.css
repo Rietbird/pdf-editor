@@ -250,7 +250,7 @@ header h1 {
   background: rgba(6, 147, 227, 0.1);
 }
 
-/* Bij focus: tekst zichtbaar met witte achtergrond die het origineel afdekt */
+/* Bij focus: tekstvak groeit mee met de inhoud */
 .text-block:focus {
   color: inherit !important;
   background: rgba(254, 249, 195, 0.95);
@@ -259,14 +259,21 @@ header h1 {
   outline-offset: 2px;
   z-index: 10;
   overflow: visible;
+  width: auto !important;
+  min-width: 50pt;
+  height: auto !important;
+  min-height: 1em;
 }
 
-/* Bewerkt blok: tekst zichtbaar met witte achtergrond + extra dekking */
+/* Bewerkt blok: tekst zichtbaar, tekstvak groeit mee */
 .text-block.modified {
   color: inherit !important;
   background: white;
   box-shadow: 0 0 0 3px white;
   z-index: 5;
+  overflow: visible;
+  width: auto !important;
+  height: auto !important;
 }
 
 /* ── Logo link ─────────────────────────────────────────────────────────────── */
