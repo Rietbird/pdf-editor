@@ -134,61 +134,61 @@ async def save_pdf(session_id: str, request: Request):
         logger.error(f"Fout bij openen sessie-PDF: {e}")
         raise HTTPException(status_code=500, detail=f"Fout bij openen PDF: {str(e)}")
 
-    for page_idx, edited_page in enumerate(edited_pages):
-        if page_idx >= len(doc):
-            break
-
-        page = doc[page_idx]
-        original_blocks = session["pages"][page_idx]["blocks"]
-
-        # Verzamel alle wijzigingen eerst, dan redact in één keer
-        changes = []
-        for i, edited_block in enumerate(edited_page.get("blocks", [])):
-            if i >= len(original_blocks):
+    try:
+        for page_idx, edited_page in enumerate(edited_pages):
+            if page_idx >= len(doc):
                 break
 
-            orig = original_blocks[i]
-            new_text = edited_block.get("text", "")
-            new_color = edited_block.get("color", orig["color"])
-            color_changed = new_color != orig["color"]
+            page = doc[page_idx]
+            original_blocks = session["pages"][page_idx]["blocks"]
 
-            if new_text != orig["text"] or color_changed:
-                changes.append({
-                    "orig": orig,
-                    "new_text": new_text,
-                    "new_color": new_color,
-                })
+            # Verzamel alle wijzigingen eerst, dan redact in één keer
+            changes = []
+            for i, edited_block in enumerate(edited_page.get("blocks", [])):
+                if i >= len(original_blocks):
+                    break
 
-        # Voeg alle redacties toe en pas ze in één keer toe
-        if changes:
-            for change in changes:
-                bbox = fitz.Rect(change["orig"]["bbox"])
-                page.add_redact_annot(bbox, fill=(1, 1, 1))
-            page.apply_redactions()
+                orig = original_blocks[i]
+                new_text = edited_block.get("text", "")
+                new_color = edited_block.get("color", orig["color"])
+                color_changed = new_color != orig["color"]
 
-            # Voeg nieuwe tekst in
-            for change in changes:
-                orig = change["orig"]
-                color_hex = _parse_color(change["new_color"])
-                r, g, b = (
-                    int(color_hex[0:2], 16) / 255,
-                    int(color_hex[2:4], 16) / 255,
-                    int(color_hex[4:6], 16) / 255,
-                )
-                if change["new_text"].strip():
-                    page.insert_text(
-                        fitz.Point(orig["x"], orig["y"]),
-                        change["new_text"],
-                        fontsize=orig["size"],
-                        color=(r, g, b),
+                if new_text != orig["text"] or color_changed:
+                    changes.append({
+                        "orig": orig,
+                        "new_text": new_text,
+                        "new_color": new_color,
+                    })
+
+            # Voeg alle redacties toe en pas ze in één keer toe
+            if changes:
+                for change in changes:
+                    bbox = fitz.Rect(change["orig"]["bbox"])
+                    page.add_redact_annot(bbox, fill=(1, 1, 1))
+                page.apply_redactions()
+
+                # Voeg nieuwe tekst in
+                for change in changes:
+                    orig = change["orig"]
+                    color_hex = _parse_color(change["new_color"])
+                    r, g, b = (
+                        int(color_hex[0:2], 16) / 255,
+                        int(color_hex[2:4], 16) / 255,
+                        int(color_hex[4:6], 16) / 255,
                     )
+                    if change["new_text"].strip():
+                        page.insert_text(
+                            fitz.Point(orig["x"], orig["y"]),
+                            change["new_text"],
+                            fontsize=orig["size"],
+                            color=(r, g, b),
+                        )
 
-    try:
         pdf_output = doc.tobytes()
     except Exception as e:
-        logger.error(f"Fout bij genereren PDF: {e}")
+        logger.error(f"Fout bij opslaan PDF: {e}", exc_info=True)
         doc.close()
-        raise HTTPException(status_code=500, detail=f"Fout bij opslaan: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Fout: {str(e)}")
     doc.close()
 
     return Response(

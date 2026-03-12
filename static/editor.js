@@ -207,7 +207,14 @@ saveBtn.addEventListener('click', async () => {
       body: JSON.stringify({ pages: editedPages }),
     });
 
-    if (!res.ok) throw new Error('Opslaan mislukt');
+    if (!res.ok) {
+      let detail = 'Opslaan mislukt';
+      try {
+        const err = await res.json();
+        detail = err.detail || detail;
+      } catch (_) {}
+      throw new Error(detail);
+    }
 
     const blob = await res.blob();
     const url  = URL.createObjectURL(blob);
