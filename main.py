@@ -50,6 +50,9 @@ async def upload_pdf(file: UploadFile = File(...)):
     if not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Alleen PDF-bestanden zijn toegestaan.")
 
+    # Oude sessies opruimen (max 1 sessie per keer in geheugen)
+    sessions.clear()
+
     try:
         pdf_bytes = await file.read()
         logger.info(f"PDF ontvangen: {file.filename}, {len(pdf_bytes)} bytes")
@@ -171,9 +174,6 @@ async def save_pdf(session_id: str, request: Request):
 
     pdf_output = doc.tobytes()
     doc.close()
-
-    # Sessie opruimen — PDF data wordt direct uit geheugen verwijderd
-    del sessions[session_id]
 
     return Response(
         content=pdf_output,
