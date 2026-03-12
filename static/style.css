@@ -52,6 +52,8 @@ header {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  position: relative;
+  justify-content: center;
 }
 
 .logo {
@@ -71,7 +73,8 @@ header h1 {
 }
 
 .btn-icon {
-  margin-left: auto;
+  position: absolute;
+  right: 0;
   background: none;
   border: 1px solid var(--border);
   border-radius: 6px;
