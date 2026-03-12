@@ -47,12 +47,14 @@ uploadBtn.addEventListener('click', async () => {
     formData.append('file', file);
 
     const res = await fetch('/upload', { method: 'POST', body: formData });
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.detail || 'Upload mislukt');
+    const contentType = res.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      throw new Error('Server gaf een onverwacht antwoord. Probeer het opnieuw.');
     }
-
     const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.detail || 'Upload mislukt');
+    }
     sessionId = data.session_id;
     pagesData = data.pages;
 

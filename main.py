@@ -1,11 +1,15 @@
 import base64
 import io
+import logging
 import uuid
 
 import fitz  # PyMuPDF
 from fastapi import FastAPI, File, HTTPException, Request, UploadFile
-from fastapi.responses import HTMLResponse, Response
+from fastapi.responses import HTMLResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -23,61 +27,71 @@ async def root():
 @app.post("/upload")
 async def upload_pdf(file: UploadFile = File(...)):
     if not file.filename.lower().endswith(".pdf"):
-        raise HTTPException(status_code=400, detail="Only PDF files are accepted.")
+        raise HTTPException(status_code=400, detail="Alleen PDF-bestanden zijn toegestaan.")
 
-    pdf_bytes = await file.read()
-    doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+    try:
+        pdf_bytes = await file.read()
+        logger.info(f"PDF ontvangen: {file.filename}, {len(pdf_bytes)} bytes")
+        doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+    except Exception as e:
+        logger.error(f"Fout bij openen PDF: {e}")
+        raise HTTPException(status_code=400, detail=f"Kon PDF niet openen: {str(e)}")
 
-    pages = []
-    for page in doc:
-        # Haal tekst blokken op met positie en stijl VOORDAT we tekst verwijderen
-        text_dict = page.get_text("dict")
-        width = page.rect.width
-        height = page.rect.height
+    try:
+        pages = []
+        logger.info(f"Verwerking: {len(doc)} pagina's")
+        for page in doc:
+            text_dict = page.get_text("dict")
+            width = page.rect.width
+            height = page.rect.height
 
-        blocks = []
-        for block in text_dict["blocks"]:
-            if block["type"] != 0:  # Alleen tekst blokken
-                continue
-            for line in block["lines"]:
-                for span in line["spans"]:
-                    if not span["text"].strip():
-                        continue
-                    blocks.append({
-                        "text": span["text"],
-                        "x": round(span["origin"][0], 1),
-                        "y": round(span["origin"][1], 1),
-                        "size": round(span["size"], 1),
-                        "color": "#{:06x}".format(span["color"]),
-                        "font": span["font"],
-                        "flags": span["flags"],  # bold=16, italic=2
-                        "bbox": [round(v, 1) for v in span["bbox"]],
-                    })
+            blocks = []
+            for block in text_dict["blocks"]:
+                if block["type"] != 0:
+                    continue
+                for line in block["lines"]:
+                    for span in line["spans"]:
+                        if not span["text"].strip():
+                            continue
+                        blocks.append({
+                            "text": span["text"],
+                            "x": round(span["origin"][0], 1),
+                            "y": round(span["origin"][1], 1),
+                            "size": round(span["size"], 1),
+                            "color": "#{:06x}".format(span["color"]),
+                            "font": span["font"],
+                            "flags": span["flags"],
+                            "bbox": [round(v, 1) for v in span["bbox"]],
+                        })
 
-        pages.append({
-            "width": round(width, 1),
-            "height": round(height, 1),
-            "blocks": blocks,
-        })
+            pages.append({
+                "width": round(width, 1),
+                "height": round(height, 1),
+                "blocks": blocks,
+            })
 
-    # Render achtergrondafbeeldingen MET tekst (overlay is transparant)
-    for page_idx, page_data in enumerate(pages):
-        page = doc[page_idx]
-        mat = fitz.Matrix(120 / 72, 120 / 72)
-        pix = page.get_pixmap(matrix=mat)
-        img_bytes = pix.tobytes("jpeg")
-        page_data["image"] = base64.b64encode(img_bytes).decode("ascii")
+        # Render achtergrondafbeeldingen MET tekst (overlay is transparant)
+        for page_idx, page_data in enumerate(pages):
+            page = doc[page_idx]
+            mat = fitz.Matrix(120 / 72, 120 / 72)
+            pix = page.get_pixmap(matrix=mat)
+            img_bytes = pix.tobytes("jpeg")
+            page_data["image"] = base64.b64encode(img_bytes).decode("ascii")
 
-    doc.close()
+        doc.close()
+        logger.info(f"Klaar: {len(pages)} pagina's verwerkt")
 
-    session_id = str(uuid.uuid4())
-    sessions[session_id] = {"pdf_bytes": pdf_bytes, "pages": pages}
+        session_id = str(uuid.uuid4())
+        sessions[session_id] = {"pdf_bytes": pdf_bytes, "pages": pages}
 
-    # Stuur alles behalve pdf_bytes naar de frontend
-    return {
-        "session_id": session_id,
-        "pages": pages,
-    }
+        return {
+            "session_id": session_id,
+            "pages": pages,
+        }
+    except Exception as e:
+        doc.close()
+        logger.error(f"Fout bij verwerken PDF: {e}")
+        raise HTTPException(status_code=500, detail=f"Fout bij verwerken: {str(e)}")
 
 
 @app.post("/save/{session_id}")
