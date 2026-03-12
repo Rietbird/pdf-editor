@@ -146,13 +146,24 @@ function renderPages(pages) {
       span.style.width = blockWidth + 'pt';
       span.style.height = blockHeight + 'pt';
 
-      // Originele tekst onthouden om wijzigingen te detecteren
+      // Originele tekst onthouden
       span.dataset.originalText = block.text;
+
       span.addEventListener('input', () => {
         if (span.textContent !== span.dataset.originalText) {
           span.classList.add('modified');
+          // Bewaar originele afmetingen als minimum zodat witte cover
+          // de originele tekst in de achtergrond volledig afdekt
+          span.style.minWidth = blockWidth + 'pt';
+          span.style.minHeight = blockHeight + 'pt';
+          span.style.width = 'auto';
+          span.style.height = 'auto';
         } else {
           span.classList.remove('modified');
+          span.style.minWidth = '';
+          span.style.minHeight = '';
+          span.style.width = blockWidth + 'pt';
+          span.style.height = blockHeight + 'pt';
         }
       });
 

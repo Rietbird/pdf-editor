@@ -242,30 +242,33 @@ header h1 {
   margin: 0;
   white-space: pre;
   overflow: hidden;
+  color: transparent !important;
+  caret-color: black;
 }
 
 .text-block:hover {
   background: rgba(6, 147, 227, 0.08);
 }
 
-/* Bij focus: tekstvak groeit mee met de inhoud */
+/* Bij focus: witte achtergrond dekt originele tekst af, overlay tekst zichtbaar */
 .text-block:focus {
-  background: rgba(254, 249, 195, 0.9);
+  color: inherit !important;
+  background: white;
+  box-shadow: 0 0 0 2px white;
   outline: 2px solid var(--accent);
-  outline-offset: 1px;
+  outline-offset: 2px;
   z-index: 10;
   overflow: visible;
-  width: auto !important;
-  min-width: 50pt;
-  height: auto !important;
-  min-height: 1em;
 }
 
-/* Bewerkt blok: tekstvak groeit mee */
+/* Bewerkt blok: witte achtergrond blijft, tekst zichtbaar */
+/* Behoudt originele afmetingen via min-width/min-height (gezet in JS) */
 .text-block.modified {
+  color: inherit !important;
+  background: white;
+  box-shadow: 0 0 0 2px white;
+  z-index: 5;
   overflow: visible;
-  width: auto !important;
-  height: auto !important;
 }
 
 /* ── Logo link ─────────────────────────────────────────────────────────────── */
